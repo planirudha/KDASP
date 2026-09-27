@@ -20,9 +20,13 @@ huggingface_key = os.getenv("HUGGINGFACE_API_KEY")
 deepseek_key = os.getenv("DEEPSEEK_API_KEY")
 gemini_key = os.getenv("GEMINI_API_KEY")
 
+if not os.environ.get("OPENAI_API_BASE"):
+    os.environ["OPENAI_API_BASE"] = "https://llm-service.ai.tu-darmstadt.de/v1"
+
 BEARER = ""
 
-API_URL = "https://router.huggingface.co/hyperbolic/v1/chat/completions"
+API_URL = "https://llm-service.ai.tu-darmstadt.de/"
+
 headers = {"Authorization": "Bearer " + BEARER}
 
 # os.environ["OPENAI_API_KEY"] =  ""
@@ -441,6 +445,11 @@ def run_asp_code_with_states(theory, examples):
 
     return states
 
+def map_model_name(model):
+    if model == "gpt-oss-120b":
+        return "openai/gpt-oss-120b"
+    return model
+
 def mend_syntax(broken_rule, syntax_error, preprompt, model="gpt-4-turbo"):
     syntax_error = syntax_error.replace('[#inc_base];', '')
     preprompt = f"You must repair the syntax of the prompted Answer Set Programming rule(s). Additionally, Clingo outputed the following error: {syntax_error}. You must only output the fixed ASP rule(s) and any other rules included in the prompt that have correct syntax. Do not output any natural language. The output must be in plain text only! Do not output the response as a code block!"
@@ -478,7 +487,7 @@ def mend_syntax(broken_rule, syntax_error, preprompt, model="gpt-4-turbo"):
 
         return response["choices"][0]["message"]['content']
     else:
-        response = completion(model=model, messages=messages, temperature=0)
+        response = completion(model=map_model_name(model), messages=messages, temperature=0)
 
         return response.choices[0].message.content
 
@@ -511,7 +520,7 @@ def mend_semantics(
         return response["choices"][0]["message"]['content']
         return data
     else:
-        response = completion(model=model, messages=messages, temperature=0)
+        response = completion(model=map_model_name(model), messages=messages, temperature=0)
 
         return response.choices[0].message.content
 
@@ -547,7 +556,7 @@ def mend_semantics_with_states(
         return response["choices"][0]["message"]['content']
         return data
     else:
-        response = completion(model=model, messages=messages, temperature=0)
+        response = completion(model=map_model_name(model), messages=messages, temperature=0)
 
         return response.choices[0].message.content
 
@@ -571,7 +580,7 @@ def ask_LLM(question, preprompt, model="gpt-4-turbo"):
         return data
     
     else:
-        response = completion(model=model, messages=messages, temperature=0)
+        response = completion(model=map_model_name(model), messages=messages, temperature=0)
 
         return response.choices[0].message.content
 
@@ -619,7 +628,7 @@ def merge_asp_encodings(encoding1, encoding2, model="gpt-3.5-turbo"):
         },
     ]
 
-    response = completion(model=model, messages=messages)
+    response = completion(model=map_model_name(model), messages=messages)
 
     # Return the merged encoding
     return (

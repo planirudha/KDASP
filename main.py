@@ -310,7 +310,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_examples", type=int,
                         default=0, help="Number of batch examples")
     parser.add_argument("--model", type=str,
-                        default="gpt-4-1106-preview", help="LLM model to be used")
+                        default=os.getenv("MODEL_NAME", "gpt-4-1106-preview"), help="LLM model to be used")
     parser.add_argument("--strategy", type=str, default="len",
                         help="Strategy used to sample examples, len for length or pred for predicates.")
     parser.add_argument("--sample_sz", type=int, default=10,
